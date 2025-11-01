@@ -1,0 +1,7 @@
+{
+  "name": "NutriScan 2.0",
+  "description": "An intelligent nutrition assistant that provides detailed dietary analysis for both packaged foods via barcode scanning and non-packaged meals through photo recognition. It offers personalized guidance to help users achieve their health and fitness goals.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
