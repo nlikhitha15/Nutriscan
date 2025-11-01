@@ -25,8 +25,8 @@ const generateMealPrompt = (userProfile: UserProfile): string => {
 
   prompt += `
 Analyze the meal in the image and provide a detailed breakdown. 
-1. Identify the food items.
-2. Estimate total calories and macronutrients (protein, carbs, fat) in grams.
+1. Identify the main dishes/components on the plate (e.g., 'Rice', 'Lentil Curry', 'Steamed Vegetables'). Provide an estimated weight in grams for each main component. Do not break down a single dish into its raw ingredients (e.g., don't list onion, tomato, spices for the curry separately).
+2. Estimate total calories and macronutrients (protein, carbs, fat) in grams for the entire meal.
 3. Provide a general health analysis and portion advice.
 4. Create a list of personalized warnings. If any ingredients conflict with the user's allergies or are particularly bad for their health conditions, list them here with a short, clear message.
 5. Provide a list of alternative suggestions. For instance, if the meal is unhealthy, suggest a healthier alternative meal. If a specific ingredient is problematic, suggest a substitute. Keep each suggestion concise and actionable.
@@ -51,7 +51,18 @@ const mealAnalysisSchema = {
             },
             required: ["protein", "carbohydrates", "fat"]
         },
-        ingredients: { type: Type.ARRAY, items: { type: Type.STRING } },
+        ingredients: {
+            type: Type.ARRAY,
+            description: "A list of identified main dishes/components with their estimated amounts.",
+            items: {
+                type: Type.OBJECT,
+                properties: {
+                    name: { type: Type.STRING, description: "The name of the main dish/component." },
+                    estimatedAmount: { type: Type.STRING, description: "The estimated weight (e.g., '150g')." }
+                },
+                required: ["name", "estimatedAmount"]
+            }
+        },
         healthAnalysis: { type: Type.STRING, description: "General health analysis of the meal." },
         portionAdvice: { type: Type.STRING, description: "Advice on portion control." },
         isRecommended: { type: Type.BOOLEAN },

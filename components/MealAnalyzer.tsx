@@ -145,9 +145,14 @@ const MealAnalyzer: React.FC<MealAnalyzerProps> = ({ userProfile }) => {
             </div>
              <div>
               <h4 className="font-semibold text-gray-700 text-base">Identified Ingredients</h4>
-              <ul className="list-disc list-inside text-gray-600">
-                {analysis.ingredients.map((item, index) => <li key={index}>{item}</li>)}
-              </ul>
+               <div className="mt-2 space-y-2">
+                {analysis.ingredients.map((item, index) => (
+                  <div key={index} className="flex justify-between items-center bg-gray-50 p-2 rounded-md">
+                    <span className="text-gray-700">{item.name}</span>
+                    <span className="font-semibold text-emerald-700">{item.estimatedAmount}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </Card>

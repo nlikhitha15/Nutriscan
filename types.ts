@@ -47,7 +47,10 @@ export interface MealAnalysis {
     carbohydrates: number;
     fat: number;
   };
-  ingredients: string[];
+  ingredients: Array<{
+    name: string;
+    estimatedAmount: string;
+  }>;
   healthAnalysis: string;
   portionAdvice: string;
   isRecommended: boolean;
