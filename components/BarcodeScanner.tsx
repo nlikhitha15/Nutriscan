@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getProductByBarcode } from '../services/openFoodFactsApi';
 import { analyzeProductWithGemini } from '../services/geminiService';
-import { OpenFoodFactsResponse, ProductAnalysis, UserProfile } from '../types';
+import { OpenFoodFactsResponse, ProductAnalysis, UserProfile, LoggedNutrients } from '../types';
 import NutrientDisplay from './NutrientDisplay';
 import Spinner from './common/Spinner';
 import Card from './common/Card';
@@ -14,9 +14,10 @@ declare const Html5Qrcode: any;
 
 interface BarcodeScannerProps {
   userProfile: UserProfile;
+  onLogProduct: (nutrients: LoggedNutrients) => void;
 }
 
-const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ userProfile }) => {
+const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ userProfile, onLogProduct }) => {
   const [barcode, setBarcode] = useState<string>('');
   const [productInfo, setProductInfo] = useState<OpenFoodFactsResponse | null>(null);
   const [productAnalysis, setProductAnalysis] = useState<ProductAnalysis | null>(null);
@@ -196,9 +197,11 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ userProfile }) => {
       
       {productInfo?.product && (
         <NutrientDisplay 
+            key={productInfo.code}
             product={productInfo.product} 
             userProfile={userProfile}
             productAnalysis={productAnalysis}
+            onLogProduct={onLogProduct}
         />
       )}
     </div>

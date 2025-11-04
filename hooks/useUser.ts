@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { UserProfile } from '../types';
+import { calculateDefaultGoals } from '../utils/nutritionCalculations';
 
 const USER_LOGGED_IN_KEY = 'nutriscan_isLoggedIn';
 const USER_PROFILE_KEY = 'nutriscan_userProfile';
@@ -40,6 +41,11 @@ export const useUser = () => {
   }, []);
 
   const saveProfile = useCallback((profile: UserProfile) => {
+    // If nutritionGoals don't exist, it's the first time setup from onboarding.
+    if (!profile.nutritionGoals) {
+      const goals = calculateDefaultGoals(profile);
+      profile.nutritionGoals = goals;
+    }
     localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(profile));
     setUserProfile(profile);
   }, []);

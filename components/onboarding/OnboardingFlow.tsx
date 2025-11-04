@@ -10,14 +10,20 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onProfileComplete }) =>
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<Partial<UserProfile>>({
     gender: 'male',
+    activityLevel: 'lightly_active',
     isDiabetic: false,
     hasHighBP: false,
+    hasHighCholesterol: false,
+    hasPCOS: false,
+    hasThyroidIssues: false,
+    isPregnant: false,
+    isBreastfeeding: false,
     dietPreference: 'none',
     fitnessGoal: 'maintain_weight',
     allergies: ''
   });
   const [error, setError] = useState<string | null>(null);
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -26,7 +32,17 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onProfileComplete }) =>
         const { checked } = e.target as HTMLInputElement;
         setFormData(prev => ({ ...prev, [name]: checked }));
     } else {
-        setFormData(prev => ({ ...prev, [name]: type === 'number' ? (value ? parseFloat(value) : '') : value }));
+        setFormData(prev => {
+            const newFormData = { ...prev, [name]: type === 'number' ? (value ? parseFloat(value) : '') : value };
+            
+            // If gender is changed away from female, reset pregnancy/breastfeeding status
+            if (name === 'gender' && value !== 'female') {
+                newFormData.isPregnant = false;
+                newFormData.isBreastfeeding = false;
+            }
+
+            return newFormData;
+        });
     }
   };
 
@@ -35,10 +51,12 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onProfileComplete }) =>
       case 1:
         return formData.age && formData.heightCm && formData.weightKg;
       case 2:
-        return true; // No validation needed for checkboxes
+        return formData.activityLevel;
       case 3:
-        return formData.dietPreference;
+        return true; // No validation needed for checkboxes
       case 4:
+        return formData.dietPreference;
+      case 5:
         return formData.fitnessGoal;
       default:
         return false;
@@ -100,22 +118,84 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onProfileComplete }) =>
         );
       case 2:
         return (
-            <div>
-                <h2 className="text-2xl font-semibold text-gray-800">Health Conditions</h2>
-                <p className="mt-1 text-gray-500">Select any conditions that apply to you.</p>
-                <div className="mt-6 space-y-4">
-                    <div className="flex items-center">
-                        <input id="isDiabetic" name="isDiabetic" type="checkbox" checked={formData.isDiabetic} onChange={handleChange} className="h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" />
-                        <label htmlFor="isDiabetic" className="ml-3 block text-sm font-medium text-gray-700">I am diabetic</label>
-                    </div>
-                    <div className="flex items-center">
-                        <input id="hasHighBP" name="hasHighBP" type="checkbox" checked={formData.hasHighBP} onChange={handleChange} className="h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" />
-                        <label htmlFor="hasHighBP" className="ml-3 block text-sm font-medium text-gray-700">I have high blood pressure</label>
-                    </div>
+             <div>
+                <h2 className="text-2xl font-semibold text-gray-800">Your Activity Level</h2>
+                <p className="mt-1 text-gray-500">How active are you on a typical day?</p>
+                 <div className="mt-6 space-y-2">
+                    <label className={`flex flex-col p-4 border rounded-md cursor-pointer ${formData.activityLevel === 'sedentary' ? 'bg-emerald-50 border-emerald-500' : 'border-gray-300'}`}>
+                        <div className="flex items-center">
+                            <input type="radio" name="activityLevel" value="sedentary" checked={formData.activityLevel === 'sedentary'} onChange={handleChange} className="h-4 w-4 text-emerald-600 border-gray-300 focus:ring-emerald-500" />
+                            <span className="ml-3 text-sm font-medium text-gray-700">Sedentary</span>
+                        </div>
+                        <p className="ml-7 text-xs text-gray-500">Little or no exercise, desk job.</p>
+                    </label>
+                     <label className={`flex flex-col p-4 border rounded-md cursor-pointer ${formData.activityLevel === 'lightly_active' ? 'bg-emerald-50 border-emerald-500' : 'border-gray-300'}`}>
+                         <div className="flex items-center">
+                            <input type="radio" name="activityLevel" value="lightly_active" checked={formData.activityLevel === 'lightly_active'} onChange={handleChange} className="h-4 w-4 text-emerald-600 border-gray-300 focus:ring-emerald-500" />
+                            <span className="ml-3 text-sm font-medium text-gray-700">Lightly Active</span>
+                        </div>
+                        <p className="ml-7 text-xs text-gray-500">Light exercise/sports 1-3 days/week.</p>
+                    </label>
+                     <label className={`flex flex-col p-4 border rounded-md cursor-pointer ${formData.activityLevel === 'moderately_active' ? 'bg-emerald-50 border-emerald-500' : 'border-gray-300'}`}>
+                         <div className="flex items-center">
+                            <input type="radio" name="activityLevel" value="moderately_active" checked={formData.activityLevel === 'moderately_active'} onChange={handleChange} className="h-4 w-4 text-emerald-600 border-gray-300 focus:ring-emerald-500" />
+                            <span className="ml-3 text-sm font-medium text-gray-700">Moderately Active</span>
+                        </div>
+                        <p className="ml-7 text-xs text-gray-500">Moderate exercise/sports 3-5 days/week.</p>
+                    </label>
+                     <label className={`flex flex-col p-4 border rounded-md cursor-pointer ${formData.activityLevel === 'very_active' ? 'bg-emerald-50 border-emerald-500' : 'border-gray-300'}`}>
+                        <div className="flex items-center">
+                            <input type="radio" name="activityLevel" value="very_active" checked={formData.activityLevel === 'very_active'} onChange={handleChange} className="h-4 w-4 text-emerald-600 border-gray-300 focus:ring-emerald-500" />
+                            <span className="ml-3 text-sm font-medium text-gray-700">Very Active</span>
+                        </div>
+                        <p className="ml-7 text-xs text-gray-500">Hard exercise/sports 6-7 days a week.</p>
+                    </label>
                 </div>
             </div>
         );
       case 3:
+        return (
+            <div>
+                <h2 className="text-2xl font-semibold text-gray-800">Health Conditions</h2>
+                <p className="mt-1 text-gray-500">Select any conditions that apply. This helps us flag problematic ingredients.</p>
+                <div className="mt-6 space-y-4">
+                    <div className="flex items-center">
+                        <input id="isDiabetic" name="isDiabetic" type="checkbox" checked={formData.isDiabetic} onChange={handleChange} className="h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" />
+                        <label htmlFor="isDiabetic" className="ml-3 block text-sm font-medium text-gray-700">Diabetes</label>
+                    </div>
+                    <div className="flex items-center">
+                        <input id="hasHighBP" name="hasHighBP" type="checkbox" checked={formData.hasHighBP} onChange={handleChange} className="h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" />
+                        <label htmlFor="hasHighBP" className="ml-3 block text-sm font-medium text-gray-700">High Blood Pressure</label>
+                    </div>
+                     <div className="flex items-center">
+                        <input id="hasHighCholesterol" name="hasHighCholesterol" type="checkbox" checked={formData.hasHighCholesterol} onChange={handleChange} className="h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" />
+                        <label htmlFor="hasHighCholesterol" className="ml-3 block text-sm font-medium text-gray-700">High Cholesterol</label>
+                    </div>
+                     <div className="flex items-center">
+                        <input id="hasPCOS" name="hasPCOS" type="checkbox" checked={formData.hasPCOS} onChange={handleChange} className="h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" />
+                        <label htmlFor="hasPCOS" className="ml-3 block text-sm font-medium text-gray-700">PCOS (Polycystic Ovary Syndrome)</label>
+                    </div>
+                     <div className="flex items-center">
+                        <input id="hasThyroidIssues" name="hasThyroidIssues" type="checkbox" checked={formData.hasThyroidIssues} onChange={handleChange} className="h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" />
+                        <label htmlFor="hasThyroidIssues" className="ml-3 block text-sm font-medium text-gray-700">Thyroid Issues</label>
+                    </div>
+
+                    {formData.gender === 'female' && (
+                        <>
+                            <div className="flex items-center">
+                                <input id="isPregnant" name="isPregnant" type="checkbox" checked={formData.isPregnant} onChange={handleChange} className="h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" />
+                                <label htmlFor="isPregnant" className="ml-3 block text-sm font-medium text-gray-700">Pregnancy</label>
+                            </div>
+                            <div className="flex items-center">
+                                <input id="isBreastfeeding" name="isBreastfeeding" type="checkbox" checked={formData.isBreastfeeding} onChange={handleChange} className="h-4 w-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500" />
+                                <label htmlFor="isBreastfeeding" className="ml-3 block text-sm font-medium text-gray-700">Breastfeeding</label>
+                            </div>
+                        </>
+                    )}
+                </div>
+            </div>
+        );
+      case 4:
         return (
             <div>
                 <h2 className="text-2xl font-semibold text-gray-800">Diet & Allergies</h2>
@@ -137,7 +217,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onProfileComplete }) =>
                 </div>
             </div>
         );
-      case 4:
+      case 5:
         return (
              <div>
                 <h2 className="text-2xl font-semibold text-gray-800">Fitness Goals</h2>
