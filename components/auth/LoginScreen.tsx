@@ -22,7 +22,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
               <GoogleIcon className="w-6 h-6" />
               <span>Login with Google</span>
             </button>
-            <p className="mt-4 text-xs text-gray-400">(This is a simulated login for demonstration)</p>
           </div>
         </div>
       </div>
